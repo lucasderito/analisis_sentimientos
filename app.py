@@ -5,26 +5,35 @@ from dotenv import load_dotenv
 import requests
 #load_dotenv()
 
-st.write("<h1 style='color: #66b3ff;font-size: 36px;'>Esta aplicación funciona con API Key de OpenAI</h1>", unsafe_allow_html=True)
+# Define la variable de sesión para la API key
+user_state = st.session_state
+if not hasattr(user_state, 'api_key'):
+    user_state.api_key = None
 
+# Título de la aplicación
+st.write("<h1 style='color: #66b3ff; font-size: 36px;'>Esta aplicación funciona con API Key de OpenAI</h1>", unsafe_allow_html=True)
+
+# Entrada de API key
 user_input = st.text_input("Ingresa tu API key de OpenAI:")
 
+# Botón de validación
 if st.button("Validar API Key"):
-    #print(f"API key ingresada: {user_input}")  # Imprime el valor de la API key ingresada
+    user_state.api_key = user_input  # Almacena la API key en la sesión
 
-    openai.api_key = user_input  # Configura la API key ingresada por el usuario
-    #print(f"API key configurada: {openai.api_key}")  # Imprime el valor de la API key configurada
+try:
+    if user_state.api_key:
+        openai.api_key = user_state.api_key  # Configura la API key de la sesión
 
-    try:
         response = openai.Completion.create(
             engine="davinci", prompt="This is a test."
         )
-        #print(f"Respuesta de OpenAI: {response}")  # Imprime la respuesta de OpenAI
+
         st.success("API key válida. Puedes utilizar la aplicación.")
-        # Coloca aquí el código de tu aplicación
-    except Exception as e:
-        #print(f"Error al validar la API key: {e}")  # Imprime el error si la API key no es válida
-        st.error("API key no válida. Acceso denegado.")
+        # Coloca aquí el código de tu aplicación que requiere la API key
+    else:
+        st.error("Debes ingresar tu API key para validarla y acceder a la aplicación.")
+except Exception as e:
+    st.error("API key no válida. Acceso denegado.")
 
 # Agregar una línea horizontal
 st.write('<hr>', unsafe_allow_html=True)
