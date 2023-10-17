@@ -5,10 +5,14 @@ from dotenv import load_dotenv
 import requests
 #load_dotenv()
 
-# Define la variable de sesión para la API key
-user_state = st.session_state
-if not hasattr(user_state, 'api_key'):
-    user_state.api_key = None
+# Función para restablecer la variable de sesión
+def reset_session():
+    session_state.api_key = None
+
+# Crear o recuperar la variable de sesión
+session_state = st.session_state
+if not hasattr(session_state, 'api_key'):
+    reset_session()  # Restablecer la variable de sesión si no existe
 
 # Título de la aplicación
 st.write("<h1 style='color: #66b3ff; font-size: 36px;'>Esta aplicación funciona con API Key de OpenAI</h1>", unsafe_allow_html=True)
@@ -18,11 +22,11 @@ user_input = st.text_input("Ingresa tu API key de OpenAI:")
 
 # Botón de validación
 if st.button("Validar API Key"):
-    user_state.api_key = user_input  # Almacena la API key en la sesión
+    session_state.api_key = user_input  # Almacena la API key en la sesión
 
 try:
-    if user_state.api_key:
-        openai.api_key = user_state.api_key  # Configura la API key de la sesión
+    if session_state.api_key:
+        openai.api_key = session_state.api_key  # Configura la API key de la sesión
 
         response = openai.Completion.create(
             engine="davinci", prompt="This is a test."
