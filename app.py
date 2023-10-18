@@ -2,23 +2,29 @@ import streamlit as st
 import openai
 import os
 from dotenv import load_dotenv
+
 import requests
-#load_dotenv()
+
+
+# load_dotenv()
 
 # Función para restablecer la variable de sesión
 def reset_session():
     session_state.api_key = None
+    openai.api_key = ""
+
 
 # Crear o recuperar la variable de sesión
 session_state = st.session_state
 if not hasattr(session_state, 'api_key'):
     reset_session()  # Restablecer la variable de sesión si no existe
 
-# Título de la aplicación
-st.write("<h1 style='color: #66b3ff; font-size: 36px;'>Esta aplicación funciona con API Key de OpenAI</h1>", unsafe_allow_html=True)
+# Título de la app
+st.write("<h1 style='color: #66b3ff; font-size: 36px;'>Esta aplicación funciona con API Key de OpenAI</h1>",
+         unsafe_allow_html=True)
 
 # Entrada de API key
-user_input = st.text_input("Ingresa tu API key de OpenAI:")
+user_input = st.text_input("Ingresa tu API key de OpenAI:", type="password")
 
 # Botón de validación
 if st.button("Validar API Key"):
@@ -41,41 +47,45 @@ except Exception as e:
 
 # Agregar una línea horizontal
 st.write('<hr>', unsafe_allow_html=True)
+
+
 def limpiar_texto(texto):
     # Elimina saltos de línea y espacios en blanco adicionales.
     texto_limpio = " ".join(texto.split())
     return texto_limpio
 
+
 # Diccionario de emociones y palabras clave
 emociones_dict = {
-    "gusto": ["gusto", "encanta","encantan", "me gusta","es un buen","hermosa","hermoso", "satisfacción"],
-    "amor": ["gusto", "encanta", "amor", "amo", "me gusta","enamoramiento"],
+    "gusto": ["gusto", "encanta", "encantan", "me gusta", "es un buen", "hermosa", "hermoso", "satisfacción"],
+    "amor": ["gusto", "encanta", "amor", "amo", "me gusta", "enamoramiento"],
     "interesante": ["interesante", "fascinante", "atractivo", "intrigante"],
-    "enfado": ["enfado", "enojado", "molesto", "rabia" , "basta", "furioso"],
+    "enfado": ["enfado", "enojado", "molesto", "rabia", "basta", "furioso"],
     "tristeza": ["tristeza", "melancolía", "abatido", "deprimido", "triste"],
     "felicidad": ["feliz", "alegría", "me gusta" "contento", "entusiasmado", "satisfacción"],
     "sorpresa": ["sorpresa", "asombro", "increíble", "impactante", "tremendo"],
-    "miedo": ["miedo", "aterrorizado", "asustado", "temor" ,"panico"],
+    "miedo": ["miedo", "aterrorizado", "asustado", "temor", "panico"],
     "desprecio": ["desprecio", "asco", "repulsión", "detesto"],
-    "divertido": ["divertido","divertirnos", "chiste", "risa", "humor"],
+    "divertido": ["divertido", "divertirnos", "chiste", "risa", "humor"],
     "orgullo": ["orgullo", "satisfacción", "elogio", "dignidad"],
     "culpa": ["culpa", "remordimiento", "arrepentimiento", "penitencia"],
     "emoción": ["emoción", "emocionado", "sentir", "experiencia"],
     "confusión": ["confusión", "desconcertado", "perplejo", "incomprensión"],
-    "aburrimiento": ["aburrimiento", "monótono", "tedio", "insípido","aburrido"],
+    "aburrimiento": ["aburrimiento", "monótono", "tedio", "insípido", "aburrido"],
     "tranquilidad": ["tranquilidad", "serenidad", "paz", "calma"],
-    "indiferencia": ["indiferencia", "apático", "desinterés", "neutral","me da lo mismo", "me da igual"],
+    "indiferencia": ["indiferencia", "apático", "desinterés", "neutral", "me da lo mismo", "me da igual"],
     "esperanza": ["esperanza", "optimismo", "esperanzado"],
     "inquietud": ["inquietud", "nerviosismo", "ansiedad", "preocupación"],
-    # Agrega más emociones y palabras clave aquí
+
 }
+
 
 def analizar_sentimientos(texto, max_respuesta_length=100):
     limpiar_texto(texto)
     prompt = (
         f"Por favor analiza el sentimiento predominante en el siguiente texto: '{texto}'. El sentimiento es: Pero quiero que me des una"
         f"explicación más detallada como si fuese un profesional (no más de {max_respuesta_length} tokens),")
-
+    openai.api_key = session_state.api_key  # Configura la API key de la sesión
     respuesta = openai.Completion.create(
         engine="text-davinci-002",
         prompt=prompt,
@@ -85,7 +95,7 @@ def analizar_sentimientos(texto, max_respuesta_length=100):
     )
 
     respuesta_formateada = respuesta.choices[0].text.strip()
-
+    openai.api_key = ""  # Configura la API key de la sesión
     # Añadir la detección de emociones utilizando el diccionario
     emociones = {}  # Un diccionario para almacenar las emociones y sus porcentajes
     for emocion, palabras_clave in emociones_dict.items():
@@ -108,7 +118,8 @@ def analizar_sentimientos(texto, max_respuesta_length=100):
 
     return respuesta_formateada, emociones
 
-#imagen del banner
+
+# imagen del banner
 imagen = "banner.jpg"
 st.image(imagen)
 # Agregar una línea horizontal
@@ -122,31 +133,50 @@ st.write("Si el texto que ingresa no especifica a qué hace referencia (películ
 
 # Columna izquierda con el campo de texto
 with st.container():
-    texto_a_analizar = st.text_area("Ingrese el texto que quiere analizar:")
-    if st.button("Analizar Texto"):
-        # Agregar una línea horizontal
-        st.write('<hr>', unsafe_allow_html=True)
-        if texto_a_analizar:
-            st.subheader("Resultado del Análisis:")
-            resultado_analisis, emociones = analizar_sentimientos(texto_a_analizar)
-            st.write(resultado_analisis)
+    try:
+        texto_a_analizar = st.text_area("Ingrese el texto que quiere analizar:")
+        if st.button("Analizar Texto"):
             # Agregar una línea horizontal
             st.write('<hr>', unsafe_allow_html=True)
-            # Mostrar el gráfico de barras con emociones
-            st.subheader("Emociones Detectadas:")
-            st.bar_chart(emociones)
+            if texto_a_analizar:
+                st.subheader("Resultado del Análisis:")
+                resultado_analisis, emociones = analizar_sentimientos(texto_a_analizar)
+                st.write(resultado_analisis)
+                # Agregar una línea horizontal
+                st.write('<hr>', unsafe_allow_html=True)
+                # Mostrar el gráfico de barras con emociones
+                st.subheader("Emociones Detectadas:")
+                st.bar_chart(emociones)
+    except Exception as e:
+        st.error("Acceso Denegado")
 
-st.write('<hr>', unsafe_allow_html=True)
+st.divider()
+
 st.write("<h1 style='color: #66b3ff;font-size: 28px;'>Análisis Grafico:</h1>", unsafe_allow_html=True)
 
 with st.container():
-    st.write("En cuanto al grafico el resultado puede tener diferentes enfoques, ya que el modelo trabaja "
+    st.write("En cuanto al gráfico el resultado puede tener diferentes enfoques, ya que el modelo trabaja "
              "bajo probabilidades por lo que un mismo texto puede tener diferentes puntos de vista."
              "Puede buscar variantes con el botón de Analizar Gráfico Nuevamente")
 
     if st.button("Analizar Gráfico Nuevamente"):
-        # Agregar una línea horizontal
-        st.write('<hr>', unsafe_allow_html=True)
-        resultado_analisis, emociones = analizar_sentimientos(texto_a_analizar)
-        st.subheader("Emociones Detectadas:")
-        st.bar_chart(emociones)
+        try:
+            # Agregar una línea horizontal
+            st.write('<hr>', unsafe_allow_html=True)
+            resultado_analisis, emociones = analizar_sentimientos(texto_a_analizar)
+            st.subheader("Emociones Detectadas:")
+            st.bar_chart(emociones)
+        except Exception as e:
+            st.error("No se pudo generar el gráfico")
+#
+#
+st.write('<hr>', unsafe_allow_html=True)
+# Verificar si la API key está en la sesión
+if session_state.api_key:
+    st.write(f"Sesión establecida")
+else:
+    st.write("API key no presente en la sesión")
+
+# Botón para cerrar la sesión (ya lo tienes en tu código)
+if st.button("Cerrar Sesión"):
+    reset_session()
