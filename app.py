@@ -23,8 +23,14 @@ if not hasattr(session_state, 'api_key'):
 st.write("<h1 style='color: #66b3ff; font-size: 36px;'>Esta aplicación funciona con API Key de OpenAI</h1>",
          unsafe_allow_html=True)
 
-# Entrada de API key
-user_input = st.text_input("Ingresa tu API key de OpenAI:", type="password")
+# # Entrada de API key
+# user_input = st.text_input("Ingresa tu API key de OpenAI:", type="password")
+
+# Mostrar el cuadro de entrada de la API key si la sesión no está establecida
+if session_state.api_key is None:
+    user_input = st.text_input("Ingresa tu API key de OpenAI:", type="password")
+else:
+    user_input = ""  # Cuadro de entrada en blanco si la sesión está establecida
 
 # Botón de validación
 if st.button("Validar API Key"):
@@ -180,3 +186,5 @@ else:
 # Botón para cerrar la sesión (ya lo tienes en tu código)
 if st.button("Cerrar Sesión"):
     reset_session()
+
+
