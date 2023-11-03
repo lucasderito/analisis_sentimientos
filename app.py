@@ -99,7 +99,7 @@ def analizar_sentimientos(texto, max_respuesta_length=100):
         prompt=prompt,
         n=1,
         max_tokens=max_respuesta_length * 2,  # Valor suficientemente grande para evitar frases cortadas.
-        temperature=0.1
+        temperature=0.4
     )
 
     respuesta_formateada = respuesta.choices[0].text.strip()
