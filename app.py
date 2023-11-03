@@ -2,6 +2,7 @@ import streamlit as st
 import openai
 import os
 from dotenv import load_dotenv
+import matplotlib.pyplot as plt
 
 import requests
 
@@ -71,7 +72,7 @@ emociones_dict = {
     "felicidad": ["feliz", "alegría", "me gusta" "contento", "entusiasmado", "satisfacción"],
     "sorpresa": ["sorpresa", "asombro", "increíble", "impactante", "tremendo"],
     "miedo": ["miedo", "aterrorizado", "asustado", "temor", "panico"],
-    "desprecio": ["desprecio", "asco", "repulsión", "detesto"],
+    "desprecio": ["desprecio", "asco", "repulsión", "detesto", "rechazo","condena","violación"],
     "divertido": ["divertido", "divertirnos", "chiste", "risa", "humor"],
     "orgullo": ["orgullo", "satisfacción", "elogio", "dignidad"],
     "culpa": ["culpa", "remordimiento", "arrepentimiento", "penitencia"],
@@ -89,15 +90,16 @@ emociones_dict = {
 def analizar_sentimientos(texto, max_respuesta_length=100):
     limpiar_texto(texto)
     prompt = (
-        f"Por favor analiza el sentimiento predominante en el siguiente texto: '{texto}'. El sentimiento es: Pero quiero que me des una"
-        f"explicación más detallada como si fuese un profesional (no más de {max_respuesta_length} tokens),")
+        f"Por favor analiza el sentimiento predominante en el siguiente texto: '{texto}'Pero quiero que me des una explicación más detallada como si fueses un profesional"
+        f" El sentimiento es: "
+        f" (no más de {max_respuesta_length} tokens),")
     openai.api_key = session_state.api_key  # Configura la API key de la sesión
     respuesta = openai.Completion.create(
         engine="text-davinci-002",
         prompt=prompt,
         n=1,
         max_tokens=max_respuesta_length * 2,  # Valor suficientemente grande para evitar frases cortadas.
-        temperature=0.5
+        temperature=0.1
     )
 
     respuesta_formateada = respuesta.choices[0].text.strip()
@@ -147,12 +149,25 @@ with st.container():
             if texto_a_analizar:
                 st.subheader("Resultado del Análisis:")
                 resultado_analisis, emociones = analizar_sentimientos(texto_a_analizar)
-                st.write(resultado_analisis)
+                # Mostrar la respuesta en negrita
+                st.markdown(f"**{resultado_analisis}**")
                 # Agregar una línea horizontal
                 st.write('<hr>', unsafe_allow_html=True)
                 # Mostrar el gráfico de barras con emociones
-                st.subheader("Emociones Detectadas:")
-                st.bar_chart(emociones)
+                #st.subheader("Emociones Detectadas:")
+                #st.bar_chart(emociones)
+                # Crear un gráfico de barras vertical con Matplotlib
+                fig, ax = plt.subplots()
+                ax.bar(emociones.keys(), emociones.values())
+                ax.set_ylabel('Valor')
+                ax.set_xlabel('Emoción')
+                ax.set_title('Emociones Detectadas')
+                plt.xticks(rotation=90)  # Rotar las etiquetas del eje x para que sean legibles
+                # Personalizar el tamaño de la fuente
+                #ax.tick_params(axis='x', labelrotation=45, labelsize=20)  # Aumentar el tamaño de la fuente en el eje x
+
+                # Mostrar el gráfico en Streamlit
+                st.pyplot(fig)
     except Exception as e:
         st.error("Acceso Denegado")
 
@@ -170,8 +185,20 @@ with st.container():
             # Agregar una línea horizontal
             st.write('<hr>', unsafe_allow_html=True)
             resultado_analisis, emociones = analizar_sentimientos(texto_a_analizar)
-            st.subheader("Emociones Detectadas:")
-            st.bar_chart(emociones)
+            fig, ax = plt.subplots()
+            ax.bar(emociones.keys(), emociones.values())
+            ax.set_ylabel('Valor')
+            ax.set_xlabel('Emoción')
+            ax.set_title('Emociones Detectadas')
+            plt.xticks(rotation=90)  # Rotar las etiquetas del eje x para que sean legibles
+            # Personalizar el tamaño de la fuente
+            #ax.tick_params(axis='x', labelrotation=45, labelsize=20)  # Aumentar el tamaño de la fuente en el eje x
+
+            # Mostrar el gráfico en Streamlit
+            st.pyplot(fig)
+
+            #st.subheader("Emociones Detectadas:")
+            #st.bar_chart(emociones)
         except Exception as e:
             st.error("No se pudo generar el gráfico")
 #
