@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import requests
 
 
-# load_dotenv()
+# load_dotenv() no se usa pq no hay variables de entorno , en un comienzo lo utilice antes de hacer la validacion con apikey directamente en el front de la app
 
 # Función para restablecer la variable de sesión
 def reset_session():
@@ -24,8 +24,6 @@ if not hasattr(session_state, 'api_key'):
 st.write("<h1 style='color: #66b3ff; font-size: 36px;'>Esta aplicación funciona con API Key de OpenAI</h1>",
          unsafe_allow_html=True)
 
-# # Entrada de API key
-# user_input = st.text_input("Ingresa tu API key de OpenAI:", type="password")
 
 # Mostrar el cuadro de entrada de la API key si la sesión no está establecida
 if session_state.api_key is None:
@@ -62,32 +60,7 @@ def limpiar_texto(texto):
     return texto_limpio
 
 
-# Diccionario de emociones y palabras clave
-emociones_dict = {
-    "gusto": ["gusto", "encanta", "encantan", "me gusta", "es un buen", "hermosa", "hermoso", "satisfacción"],
-    "amor": ["gusto", "encanta", "amor", "amo", "me gusta", "enamoramiento"],
-    "interesante": ["interesante", "fascinante", "atractivo", "intrigante"],
-    "enfado": ["enfado", "enojado", "molesto", "rabia", "basta", "furioso"],
-    "tristeza": ["tristeza", "melancolía", "abatido", "deprimido", "triste"],
-    "felicidad": ["feliz", "alegría", "me gusta" "contento", "entusiasmado", "satisfacción"],
-    "sorpresa": ["sorpresa", "asombro", "increíble", "impactante", "tremendo"],
-    "miedo": ["miedo", "aterrorizado", "asustado", "temor", "panico"],
-    "desprecio": ["desprecio", "asco", "repulsión", "detesto", "rechazo","condena","violación"],
-    "divertido": ["divertido", "divertirnos", "chiste", "risa", "humor"],
-    "orgullo": ["orgullo", "satisfacción", "elogio", "dignidad"],
-    "culpa": ["culpa", "remordimiento", "arrepentimiento", "penitencia"],
-    "emoción": ["emoción", "emocionado", "sentir", "experiencia"],
-    "confusión": ["confusión", "desconcertado", "perplejo", "incomprensión"],
-    "aburrimiento": ["aburrimiento", "monótono", "tedio", "insípido", "aburrido"],
-    "tranquilidad": ["tranquilidad", "serenidad", "paz", "calma"],
-    "indiferencia": ["indiferencia", "apático", "desinterés", "neutral", "me da lo mismo", "me da igual"],
-    "esperanza": ["esperanza", "optimismo", "esperanzado"],
-    "inquietud": ["inquietud", "nerviosismo", "ansiedad", "preocupación"],
-
-}
-
-
-def analizar_sentimientos(texto, max_respuesta_length=100):
+def analizar_sentimientos(texto, max_respuesta_length=200):
     limpiar_texto(texto)
     prompt = (
         f"Por favor analiza el sentimiento predominante en el siguiente texto: '{texto}'Pero quiero que me des una explicación más detallada como si fueses un profesional"
@@ -98,18 +71,48 @@ def analizar_sentimientos(texto, max_respuesta_length=100):
         engine="text-davinci-002",
         prompt=prompt,
         n=1,
-        max_tokens=max_respuesta_length * 2,  # Valor suficientemente grande para evitar frases cortadas.
-        temperature=0.4
+        max_tokens=max_respuesta_length * 2,  # Valor suficientemente grande para evitar frases cortadas. ( las que devuelve la api)
+        temperature=0.8
     )
 
     respuesta_formateada = respuesta.choices[0].text.strip()
     openai.api_key = ""  # Configura la API key de la sesión
+
+    # Diccionario de emociones y palabras clave
+    emociones_dict = {
+        "gusto": ["gusto", "encanta", "encantan", "me gusta", "es un buen", "hermosa", "hermoso", "satisfacción", "placer", "agradable", "adorar", "encantador", "divertido", "excelente", "divino", "fantástico", "encantador"],
+        "amor": ["encanta", "amor", "amo", "me gusta", "enamoramiento", "cariño", "afecto", "ternura", "devoción", "compañerismo", "fascinación", "apego", "pasión", "amistad", "dulzura", "complicidad", "romance", "idilio"],
+        "interesante": ["interesante", "fascinante", "atractivo", "intrigante", "curioso", "apasionante", "emocionante", "captivante", "entretenido", "envolvente", "llamativo", "seductor", "sorprendente", "involucrante", "excitante"],
+        "enfado": ["frustracion", "disgusto", "enfado", "enojado", "molesto", "molestia", "rabia", "furioso", "indignación", "exasperación", "irritación", "hostilidad", "odio", "desprecio", "iracundo", "resentimiento", "acalorado", "violento"],
+        "tristeza": ["tristeza", "melancolía", "abatido", "deprimido", "triste", "desánimo", "pesar", "aflicción", "pena", "duelo", "luto", "sufrimiento", "angustia", "nostalgia", "desesperanza", "congoja", "desolación"],
+        "felicidad": ["feliz", "alegría", "contento", "entusiasmado", "éxtasis", "júbilo", "regocijo", "diversión", "euforia", "placer", "satisfacción", "festejo", "alegría inmensa", "alboroto", "felicidad radiante", "regocijo desbordante"],
+        "sorpresa": ["sorpresa", "asombro", "increíble", "impactante", "tremendo", "estupefacción", "maravilla", "conmoción", "perplejidad", "deslumbrante", "atónito", "desconcertante", "estupefacto", "boquiabierto", "perplejo", "impresionante"],
+        "miedo": ["miedo", "aterrorizado", "asustado", "temor", "panico", "terror", "horror", "aprehensión", "espanto", "angustia", "ansiedad", "susto", "preocupación", "nervios", "escalofríos", "inquietud"],
+        "desprecio": ["disgusto", "desprecio", "asco", "repulsión", "detesto", "rechazo", "condena", "violación", "aversión", "desagrado", "desdén", "abominación", "odio", "aborrecimiento", "aborrecible", "abyecto", "insultante"],
+        "divertido": ["divertido", "divertirnos", "chiste", "risa", "humor", "entretenido", "gracioso", "cómico", "alegría", "regocijo", "reír", "entretenimiento", "risueño", "jocoso", "diversión desenfrenada", "risa contagiosa"],
+        "orgullo": ["orgullo", "satisfacción", "elogio", "dignidad", "autoestima", "honor", "autoconfianza", "prestigio", "autoelogio", "triunfo", "respeto", "orgulloso", "satisfecho", "digno", "glorioso", "altivo"],
+        "culpa": ["culpa", "remordimiento", "arrepentimiento", "penitencia", "vergüenza", "autoacusación", "autocrítica", "compunción", "pesar", "autoexamen", "autoreproche", "autocondena", "disculpa", "reparación", "arrepentido", "lamentable"],
+        "emoción": ["emoción", "emocionado", "sentir", "experiencia", "sensación", "reacción", "respuesta emocional", "impresión", "estímulo", "pasión", "vivencia", "excitación", "involucración", "afecto", "entusiasmo"],
+        "confusión": ["confusión", "desconcertado", "perplejo", "incomprensión", "desorientación", "ambigüedad", "desorden", "caos", "incertidumbre", "despiste", "atolondramiento", "caótico", "incompleto", "ininteligible", "desordenado", "mareado"],
+        "aburrimiento": ["aburrimiento", "monótono", "tedio", "insípido", "aburrido", "desinterés", "desgana", "apatía", "tedioso", "fastidioso", "monotonía", "indiferencia", "rutina", "repetitivo", "poco interesante"],
+        "tranquilidad": ["tranquilidad", "serenidad", "paz", "calma", "relajación", "quietud", "paciencia", "armonía", "equilibrio", "sosegado", "apacible", "sereno", "apaciguador", "reposado", "pausado", "relajado"],
+        "indiferencia": ["indiferencia", "apático", "desinterés", "neutral", "me da lo mismo", "me da igual", "desinteresado", "pasividad", "frialdad", "desapego", "igual", "impasible", "neutralidad", "despreocupado", "insensible", "imperturbable", "desconexión"],
+        "esperanza": ["esperanza", "optimismo", "esperanzado", "fe", "confianza", "positividad", "anticipación", "motivación", "positivo", "ilusión", "esperar", "optimista", "esperado", "esperanzador", "confiado", "esperanzadora"],
+        "inquietud": ["inquietud", "nerviosismo", "ansiedad", "preocupación", "agitación", "tensión", "preocupado", "nervioso", "intriga", "aprensión", "intranquilidad", "desasosiego", "agitado", "angustioso", "turbado", "agitante"],
+
+    }
+
     # Añadir la detección de emociones utilizando el diccionario
-    emociones = {}  # Un diccionario para almacenar las emociones y sus porcentajes
+    emociones = {}  # Un diccionario para almacenar las emociones
+
+    # Recorre el diccionario de emociones y palabras clave y aca se hace esto para que si por ejemplo la emocion que devuelve es disgusto no la tome tambien el diccionario como gusto , para que analice la palabra textual y devuelva en 1.0 sola la correcta
     for emocion, palabras_clave in emociones_dict.items():
         for palabra_clave in palabras_clave:
-            if palabra_clave in respuesta_formateada:
-                emociones[emocion] = respuesta_formateada.count(palabra_clave) / len(respuesta_formateada)
+            # Divide el texto en palabras individuales
+            palabras_en_texto = respuesta_formateada.split()
+            # Comprueba si la palabra clave está en el texto como palabra completa
+            if palabra_clave in palabras_en_texto:
+                emociones[emocion] = 1.0  # Marca la emoción como 1.0 si la palabra clave se encuentra presente tal cual es
 
     # Rellenar las emociones faltantes con cero
     for emocion in emociones_dict.keys():
@@ -196,7 +199,7 @@ with st.container():
 
             # Mostrar el gráfico en Streamlit
             st.pyplot(fig)
-
+            #grafico anterior el que trae x defecto streamlit
             #st.subheader("Emociones Detectadas:")
             #st.bar_chart(emociones)
         except Exception as e:
@@ -210,7 +213,7 @@ if session_state.api_key:
 else:
     st.write("API key no presente en la sesión")
 
-# Botón para cerrar la sesión (ya lo tienes en tu código)
+# Botón para cerrar la sesión
 if st.button("Cerrar Sesión"):
     reset_session()
 
