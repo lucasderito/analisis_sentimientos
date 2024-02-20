@@ -44,6 +44,7 @@ packaging==23.2
 pandas==2.1.1
 Pillow==10.0.1
 pipreqs==0.4.13
+pip==24.0
 protobuf==4.24.4
 pyarrow==13.0.0
 pydeck==0.8.1b0

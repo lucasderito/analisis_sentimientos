@@ -6,7 +6,11 @@ import matplotlib.pyplot as plt
 
 import requests
 
-
+# imagen = "banner2.jpg"
+# st.image(imagen)
+# # Agregar una línea horizontal
+# st.write('<hr>', unsafe_allow_html=True)
+# st.write("<h1 style='color: #66b3ff;font-size: 28px;'>Análisis Textual:</h1>", unsafe_allow_html=True)
 # load_dotenv() no se usa pq no hay variables de entorno , en un comienzo lo utilice antes de hacer la validacion con apikey directamente en el front de la app
 
 # Función para restablecer la variable de sesión
@@ -176,7 +180,7 @@ with st.container():
 
 st.divider()
 
-st.write("<h1 style='color: #66b3ff;font-size: 28px;'>Análisis Grafico:</h1>", unsafe_allow_html=True)
+st.write("<h1 style='color: #66b3ff;font-size: 28px;'>Análisis Gráfico:</h1>", unsafe_allow_html=True)
 
 with st.container():
     st.write("En cuanto al gráfico el resultado puede tener diferentes enfoques, ya que el modelo trabaja "
