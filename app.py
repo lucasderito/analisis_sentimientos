@@ -1,8 +1,8 @@
 import streamlit as st
-import openai
 import os
 from dotenv import load_dotenv
 import matplotlib.pyplot as plt
+from openai import OpenAI
 
 import requests
 
@@ -16,7 +16,7 @@ import requests
 # Función para restablecer la variable de sesión
 def reset_session():
     session_state.api_key = None
-    openai.api_key = ""
+
 
 
 # Crear o recuperar la variable de sesión
@@ -39,15 +39,22 @@ else:
 if st.button("Validar API Key"):
     session_state.api_key = user_input  # Almacena la API key en la sesión
 
+
 try:
     if session_state.api_key:
-        openai.api_key = session_state.api_key  # Configura la API key de la sesión
 
-        response = openai.Completion.create(
-            engine="davinci", prompt="This is a test."
+        client = OpenAI(api_key=session_state.api_key)
+
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "Hello!"}
+            ]
         )
 
         st.success("API key válida. Puedes utilizar la aplicación.")
+
         # Coloca aquí el código de tu aplicación que requiere la API key
     else:
         st.error("Debes ingresar tu API key para validarla y acceder a la aplicación.")
@@ -70,17 +77,25 @@ def analizar_sentimientos(texto, max_respuesta_length=200):
         f"Por favor analiza el sentimiento predominante en el siguiente texto: '{texto}'Pero quiero que me des una explicación más detallada como si fueses un profesional"
         f" El sentimiento es: "
         f" (no más de {max_respuesta_length} tokens),")
-    openai.api_key = session_state.api_key  # Configura la API key de la sesión
-    respuesta = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        n=1,
-        max_tokens=max_respuesta_length * 2,  # Valor suficientemente grande para evitar frases cortadas. ( las que devuelve la api)
-        temperature=0.8
+    client = OpenAI(api_key=session_state.api_key)
+    respuesta = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        #engine="gpt-3.5-turbo-instruct",
+        #prompt=prompt,
+        messages=[
+            {"role": "system", "content": "Menciona los sentimientos relacionados al texto ingresado"},
+            {"role": "user", "content": f"Por favor analiza el sentimiento predominante en el siguiente texto: '{texto}'Pero quiero que me des una explicación más detallada como si fueses un profesional"}
+        ],
+        #n=1,
+        #max_tokens=max_respuesta_length * 2,  # Valor suficientemente grande para evitar frases cortadas. ( las que devuelve la api)
+        #temperature=0.8
     )
 
-    respuesta_formateada = respuesta.choices[0].text.strip()
-    openai.api_key = ""  # Configura la API key de la sesión
+
+    respuesta_formateada = respuesta.choices[0].message.content.strip()
+
+
+
 
     # Diccionario de emociones y palabras clave
     emociones_dict = {
@@ -176,7 +191,7 @@ with st.container():
                 # Mostrar el gráfico en Streamlit
                 st.pyplot(fig)
     except Exception as e:
-        st.error("Acceso Denegado")
+        st.error(f"Acceso Denegado: {e}")
 
 st.divider()
 
