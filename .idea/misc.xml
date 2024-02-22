@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="analisis_sentimientos" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="analisis_sentimientos" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (analisis_sentimientos)" project-jdk-type="Python SDK" />
 </project>
