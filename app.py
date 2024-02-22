@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 from openai import OpenAI
