@@ -23,6 +23,8 @@ session_state = st.session_state
 if not hasattr(session_state, 'api_key'):
     reset_session()  # Restablecer la variable de sesión si no existe
 
+imagen = "banner.jpg"
+st.image(imagen)
 # Título de la app
 st.write("<h1 style='color: #66b3ff; font-size: 36px;'>Esta aplicación funciona con API Key de OpenAI</h1>",
          unsafe_allow_html=True)
