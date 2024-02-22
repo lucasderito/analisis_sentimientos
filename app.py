@@ -150,7 +150,7 @@ def analizar_sentimientos(texto, max_respuesta_length=200):
 
 
 # imagen del banner
-imagen = "banner.jpg"
+imagen = "banner3.jpg"
 st.image(imagen)
 # Agregar una línea horizontal
 st.write('<hr>', unsafe_allow_html=True)
